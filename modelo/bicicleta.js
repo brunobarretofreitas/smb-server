@@ -23,4 +23,5 @@ BicicletaSchema.statics.buscar = function(resposta){
   this.find()
   .exec(resposta);
 };
+
 module.exports = mongoose.model('Bicicleta', BicicletaSchema);

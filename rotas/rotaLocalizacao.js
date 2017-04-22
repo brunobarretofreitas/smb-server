@@ -1,5 +1,6 @@
 var Localizacao = require('../modelo/localizacao');
 var Bicicleta = require('../modelo/bicicleta');
+var Ambiente = require('../modelo/ambiente');
 
 var express = require('express');
 var router = express.Router();
@@ -53,17 +54,70 @@ router.get('/:valor', function(request, response) {
   var identificador = resultado[0];
   var lat = resultado[1];
   var lon = resultado[2];
+  var co2 = resultado[3];
+  var som = resultado[4];
+  var temperatura = resultado[5];
+  var umidade = resultado[6];
 
+  console.log("VALORES DA REQUISICAO: ");
   console.log(identificador);
   console.log(lat);
   console.log(lon);
+  console.log(co2);
+  console.log(som);
+  console.log(temperatura);
+  console.log(umidade);
 
   loc = new Localizacao();
   loc.latitude = lat;
   loc.longitude = lon;
   loc.bicicleta = identificador;
 
+  var date = new Date();
+  var dataCompleta = date.getDate() + "/" +
+                  (date.getMonth()+1) + "/" +
+                   date.getFullYear() + " " +
+                   date.getHours()+":"+
+                   date.getMinutes() + " hs";
+
+  console.log(dataCompleta);
+
+  ambiente = new Ambiente();
+  ambiente.latitude = lat;
+  ambiente.longitude = lon;
+  ambiente.nivelCo2 = co2;
+  ambiente.nivelSonoro = som;
+  ambiente.temperatura = temperatura;
+  ambiente.umidade = umidade;
+  ambiente.data = dataCompleta;
+
   console.log(loc);
+  console.log(ambiente);
+
+  Ambiente.buscarPorLocalizacao(lat, lon, function(erro, amb){
+    if(erro){
+      return response.sendStatus(500);
+    }else if(amb != null){
+      console.log("encontrado o ambiente");
+      amb.nivelCo2 = ambiente.nivelCo2;
+      amb.nivelSonoro = ambiente.nivelSonoro;
+      amb.temperatura = ambiente.temperatura;
+      amb.umidade = ambiente.umidade;
+      amb.data = dataCompleta;
+
+
+      amb.save(function(err){
+        if(err)
+          return response.sendStatus(500);
+      })
+    }else{
+      console.log(ambiente);
+      ambiente.save(function(err){
+        if(err)
+          return response.sendStatus(500);
+      })
+    }
+  });
 
   Bicicleta.buscarBikeIdentificador(identificador, function(erro, bicicleta){
     if(erro){
