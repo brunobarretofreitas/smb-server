@@ -1,4 +1,5 @@
 var Pessoa = require('../modelo/pessoa');
+var Ambiente = require('../modelo/ambiente');
 
 var express = require('express');
 var router = express.Router();
